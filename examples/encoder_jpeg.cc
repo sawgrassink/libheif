@@ -54,7 +54,6 @@ void JpegEncoder::OnJpegError(j_common_ptr cinfo) {
   longjmp(handler->setjmp_buffer, 1);
 }
 
-#if !defined(HAVE_JPEG_WRITE_ICC_PROFILE)
 
 #define ICC_MARKER  (JPEG_APP0 + 2)     /* JPEG marker code for ICC */
 #define ICC_OVERHEAD_LEN  14            /* size of non-profile data in APP2 */
@@ -71,7 +70,7 @@ void JpegEncoder::OnJpegError(j_common_ptr cinfo) {
  /* This function is copied almost as is from libjpeg-turbo */
 
 static
-void jpeg_write_icc_profile(j_compress_ptr cinfo, const JOCTET *icc_data_ptr,
+void fixed_jpeg_write_icc_profile(j_compress_ptr cinfo, const JOCTET *icc_data_ptr,
                             unsigned int icc_data_len)
 {
   unsigned int num_markers;     /* total number of markers we'll write */
@@ -124,7 +123,6 @@ void jpeg_write_icc_profile(j_compress_ptr cinfo, const JOCTET *icc_data_ptr,
   }
 }
 
-#endif  // !defined(HAVE_JPEG_WRITE_ICC_PROFILE)
 
 bool JpegEncoder::Encode(const struct heif_image_handle* handle,
     const struct heif_image* image, const std::string& filename) {
@@ -171,7 +169,7 @@ bool JpegEncoder::Encode(const struct heif_image_handle* handle,
   if (profile_size > 0){
     uint8_t* profile_data = static_cast<uint8_t*>(malloc(profile_size));
     heif_image_handle_get_raw_color_profile(handle, profile_data);
-    jpeg_write_icc_profile(&cinfo, profile_data, (unsigned int)profile_size);
+    fixed_jpeg_write_icc_profile(&cinfo, profile_data, (unsigned int)profile_size);
     free(profile_data);
   }
 
