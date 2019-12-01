@@ -67,26 +67,28 @@ namespace heif {
   class Fraction {
   public:
     Fraction() { }
-  Fraction(int num,int den) : numerator(num), denominator(den) { }
+    Fraction(int32_t num,int32_t den);
 
     Fraction operator+(const Fraction&) const;
     Fraction operator-(const Fraction&) const;
     Fraction operator-(int) const;
     Fraction operator/(int) const;
 
-    int round_down() const;
-    int round_up() const;
-    int round() const;
+    int32_t round_down() const;
+    int32_t round_up() const;
+    int32_t round() const;
 
-    int numerator = 0;
-    int denominator = 1;
+    bool is_valid() const;
+
+    int32_t numerator = 0;
+    int32_t denominator = 1;
   };
 
 
   class BoxHeader {
   public:
     BoxHeader();
-    ~BoxHeader() { }
+    virtual ~BoxHeader() { }
 
     const static uint64_t size_until_end_of_file = 0;
 
@@ -149,8 +151,7 @@ namespace heif {
   class Box : public BoxHeader {
   public:
     Box() { }
-  Box(const BoxHeader& hdr) : BoxHeader(hdr) { }
-    virtual ~Box() { }
+    Box(const BoxHeader& hdr) : BoxHeader(hdr) { }
 
     static Error read(BitstreamRange& range, std::shared_ptr<heif::Box>* box);
 
@@ -291,7 +292,7 @@ namespace heif {
     };
 
     struct Item {
-      heif_item_id item_ID;
+      heif_item_id item_ID = 0;
       uint8_t  construction_method = 0; // >= version 1
       uint16_t data_reference_index = 0;
       uint64_t base_offset = 0;

@@ -44,7 +44,7 @@
 
 
 
-const char kSuccess[] = "Success";
+static const char kSuccess[] = "Success";
 
 
 namespace heif {
